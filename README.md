@@ -34,12 +34,14 @@ COPY ./requirements.txt /requirements.txt
 # add - add a package
 # --update - update the registry before the package is added
 # --no cache - Don't store the registry index on the docker file. We do this to minnimize the footprint of the docker image.
-RUN apk add --update --no-cache postgresql-client
+# jpeg-dev - jpeg support for Pillow python package
+RUN apk add --update --no-cache postgresql-client jpeg-dev
 
 # Install temporary packages to be removed later
 # --virtual - set up alias for the dependencies to make them easier to remove later
+# musl-dev zlib zlib-dev - Needed for Pillow python package
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
-      gcc libc-dev linux-headers postgresql-dev
+      gcc libc-dev linux-headers postgresql-dev musl-dev zlib zlib-dev
 
 # Install the python package requirements
 RUN pip install -r /requirements.txt
@@ -49,9 +51,9 @@ RUN apk del .tmp-build-deps
 
 # Create an app folder, make it the default work directory and copy the
 # app folder on the local machine to the docker image
-RUN mkdir /appname
-WORKDIR /appname
-COPY ./appname /appname
+RUN mkdir /puppy_store
+WORKDIR /puppy_store
+COPY ./puppy_store /puppy_store
 
 # Create a user (named "user") for running applications only (-D).
 # This is for security purposes.
@@ -59,6 +61,7 @@ RUN adduser -D user
 
 # Set the user.
 USER user
+
 
 ```
 
