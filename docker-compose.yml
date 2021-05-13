@@ -1,0 +1,44 @@
+# Version of docker compose
+version: "3"
+
+# Define the services that make up the application
+services:
+  # Name of the service (puppy_store)
+  app:
+    build:
+      context: .
+    # Set ports
+    port:
+      - "8000:8000"
+    # Map the volume in the local machine into the docker container
+    # that runs the application in order to update changes made to
+    # the code in real time without having to restart Docker.
+    volumes:
+      - ./puppy_store:/puppy_store
+    # Run the django developement server on all IP addresses
+    #  that run the container. Conects on port 8000.
+    # Command to start the service when running "docker-compose up"
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    # set the environment variables
+    environment:
+      # Use the db service (created separately)
+      - DB_HOST=db
+      # Name of the new db service db
+      - DB_NAME=puppy_store
+      - DB_USER=postgres
+      - DB_PASS=supersecretpassword
+    depends_on:
+      # Makes this service go up after the db service and makes the db service available when the app is running.
+      - db
+  # Set the DB service when using a different type of DB (default for django is sqlite)
+  db:
+    # Locate image (postgres) in docker hub and pull the version with the tag (10-alpine)
+    image: postgres:10-alpine
+    # environment variables to be created when the DB service starts
+    environment:
+        - POSTGRES_DB=app
+        - POSTGRES_USER=postgres
+        # In production don't use this password but rather, in your build server you should add an encrypted password that overrides this.
+        - POSTGRES_PASSWORD=supersecretpassword
