@@ -21,7 +21,7 @@ RUN apk add --update --no-cache postgresql-client
 # Install temporary packages to be removed later
 # --virtual - set up alias for the dependencies to make them easier to remove later
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
-      gcc libc-dev linux-headers postgresql-dev
+      gcc libc-dev linux-headers postgresql-dev musl-dev zlib zlib-dev
 
 # Install the python package requirements
 RUN pip install -r /requirements.txt
