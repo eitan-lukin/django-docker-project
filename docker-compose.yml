@@ -14,19 +14,20 @@ services:
     # that runs the application in order to update changes made to
     # the code in real time without having to restart Docker.
     volumes:
-      - ./puppy_store:/puppy_store
+      - ./app:/app
     # Run the django developement server on all IP addresses
     #  that run the container. Conects on port 8000.
     # Command to start the service when running "docker-compose up"
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     # set the environment variables
     environment:
       # Use the db service (created separately)
       - DB_HOST=db
       # Name of the new db service db
-      - DB_NAME=puppy_store
+      - DB_NAME=app
       - DB_USER=postgres
       - DB_PASS=supersecretpassword
     depends_on:

@@ -33,9 +33,9 @@ RUN apk del .tmp-build-deps
 
 # Create an app folder, make it the default work directory and copy the
 # app folder on the local machine to the docker image
-RUN mkdir /puppy_store
-WORKDIR /puppy_store
-COPY ./puppy_store /puppy_store
+RUN mkdir /app
+WORKDIR /app
+COPY ./app /app
 
 # Create a user (named "user") for running applications only (-D).
 # This is for security purposes.

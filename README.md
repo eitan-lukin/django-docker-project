@@ -39,6 +39,7 @@ RUN apk add --update --no-cache postgresql-client jpeg-dev
 
 # Install temporary packages to be removed later
 # --virtual - set up alias for the dependencies to make them easier to remove later
+# gcc libc-dev linux-headers postgresql-dev - needed for postgres db
 # musl-dev zlib zlib-dev - Needed for Pillow python package
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
       gcc libc-dev linux-headers postgresql-dev musl-dev zlib zlib-dev
@@ -51,9 +52,9 @@ RUN apk del .tmp-build-deps
 
 # Create an app folder, make it the default work directory and copy the
 # app folder on the local machine to the docker image
-RUN mkdir /puppy_store
-WORKDIR /puppy_store
-COPY ./puppy_store /puppy_store
+RUN mkdir /app
+WORKDIR /app
+COPY ./app /app
 
 # Create a user (named "user") for running applications only (-D).
 # This is for security purposes.
@@ -83,9 +84,9 @@ services:
     # that runs the application in order to update changes made to
     # the code in real time without having to restart Docker.
     volumes:
-      - ./<appname>:/<appname>
-    # Run the django developement server on all IP addresses
-    #  that run the container. Conects on port 8000.
+      - ./app:/app
+    # Run the django development server on all IP addresses
+    # that run the container. Connects on port 8000.
     # Command to start the service when running "docker-compose up"
     command: >
       sh -c "python manage.py wait_for_db &&
@@ -96,7 +97,7 @@ services:
       # Use the db service (created separately)
       - DB_HOST=db
       # Name of the new db service db
-      - DB_NAME=appname
+      - DB_NAME=app
       - DB_USER=postgres
       - DB_PASS=supersecretpassword
     depends_on:
@@ -122,11 +123,11 @@ Build the docker image:<br>
 
 Instead of running the usual python command, run:
 
-`docker-compose run --rm <appname> sh -c <command>`<br>
+`docker-compose run --rm <appname> sh -c "<command>"`<br>
 --rm: <br>
 sh: run a shell script<br>
 -c: execute the following command in the sheel script<br>
 
 For example:<br>
-`docker-compose run --rm app sh -c django-admin startproject app .`<br>
-`docker-compose run --rm app sh -c python manage.py test && flake8`<br>
+`docker-compose run --rm app sh -c "django-admin startproject app ."`<br>
+`docker-compose run --rm app sh -c "python manage.py test && flake8"`<br>
